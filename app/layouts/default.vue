@@ -1,6 +1,7 @@
 <script setup lang="js">
 import AppHeader from "~/components/common/AppHeader.vue";
 import AppFooter from "~/components/common/AppFooter.vue";
+import { SpeedInsights } from "@vercel/speed-insights/vue";
 </script>
 
 <template>
@@ -12,5 +13,6 @@ import AppFooter from "~/components/common/AppFooter.vue";
       </main>
       <AppFooter />
     </UApp>
+    <SpeedInsights />
   </div>
 </template>
