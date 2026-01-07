@@ -1,0 +1,170 @@
+import { NuxtRouteAnnouncer } from '../../../.nuxt/components';
+<template>
+  <div
+    class="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+  >
+    <div class="max-w-sm w-full space-y-8">
+      <!-- Header -->
+
+      <!-- Login Form -->
+      <UCard class="shadow-xl">
+        <div class="text-center m-8">
+          <UIcon
+            name="i-heroicons-arrow-right-on-rectangle"
+            class="mx-auto h-12 w-12 text-primary-600"
+          />
+          <h2
+            class="mt-6 text-3xl font-extrabold text-gray-900 dark:text-white"
+          >
+            Welcome back
+          </h2>
+          <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            Sign in to your PrimeTrading account
+          </p>
+        </div>
+
+        <form
+          class="space-y-6 flex flex-col justify-center"
+          @submit.prevent="login(identifier, password)"
+        >
+          <!-- Email/Username Field -->
+          <UFormGroup
+            label="Username or Email"
+            name="identifier"
+            help="Enter your username or email"
+            class="text-center"
+          >
+            <UInput
+              v-model="identifier"
+              placeholder="Enter your username or email"
+              icon="i-heroicons-user"
+              size="xl"
+              class="text-center"
+              required
+            />
+          </UFormGroup>
+
+          <!-- Password Field -->
+          <UFormGroup label="Password" name="password" class="text-center">
+            <UInput
+              v-model="password"
+              type="password"
+              placeholder="Enter your password"
+              icon="i-heroicons-lock-closed"
+              size="xl"
+              class="text-center"
+              required
+            />
+          </UFormGroup>
+
+          <!-- Remember Me & Forgot Password -->
+          <div class="flex items-center justify-between">
+            <UCheckbox label="Remember me" />
+            <UButton
+              variant="link"
+              size="sm"
+              to="/forgot-password"
+              class="p-0 text-sm"
+            >
+              Forgot password?
+            </UButton>
+          </div>
+
+          <!-- Submit Button -->
+          <UButton
+            type="submit"
+            block
+            size="lg"
+            class="justify-center mx-auto w-full"
+          >
+            <template #leading>
+              <UIcon name="i-heroicons-arrow-right-on-rectangle" />
+            </template>
+            Sign In
+          </UButton>
+        </form>
+
+        <!-- Register Link -->
+        <div class="mt-6 text-center">
+          <p class="text-sm text-gray-600 dark:text-gray-400">
+            Don't have an account?
+            <UButton variant="link" size="sm" to="/register" class="p-0">
+              Create one here
+            </UButton>
+          </p>
+        </div>
+      </UCard>
+    </div>
+  </div>
+</template>
+
+<script setup lang="js">
+useHead({
+  title: "Login - PrimeTrading",
+  meta: [
+    {
+      name: "description",
+      content:
+        "Sign in to your PrimeTrading account and continue your trading journey.",
+    },
+  ],
+});
+
+const identifier = ref('');
+const password = ref('');
+const router = useRouter();
+
+async function login(identifier, password) {
+  try {
+    const response = await fetch("http://127.0.0.1:8080/api/login", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ identifier, password }),
+    });
+    const data = await response.json();
+    if (response.ok) {
+      router.push('/graphs');
+    } else {
+      console.error("Login failed:", data);
+    }
+  } catch (error) {
+    console.error("Error during login:", error);
+  }
+}
+</script>
+
+<style scoped>
+/* Center form labels and help text */
+:deep(.form-group) {
+  text-align: center;
+}
+
+:deep(.form-group label) {
+  display: block;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+:deep(.form-group .help-text) {
+  text-align: center;
+}
+
+/* Ensure input fields are properly aligned */
+:deep(.ui-input-wrapper) {
+  margin: 0 auto;
+  text-align: center;
+}
+
+:deep(.ui-input) {
+  text-align: center;
+}
+
+/* Center the checkbox container */
+:deep(.ui-checkbox-wrapper) {
+  justify-content: center;
+  text-align: center;
+}
+</style>
