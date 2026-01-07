@@ -193,18 +193,21 @@ async function onSubmit() {
   loading.value = true;
 
   try {
-    const response = await fetch("http://127.0.0.1:8080/api/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        username: state.username,
-        email: state.email,
-        password: state.password,
-        password2: state.confirmPassword,
-      }),
-    });
+    const response = await fetch(
+      "http://ec2-35-180-31-240.eu-west-3.compute.amazonaws.com:8080/api/register",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: state.username,
+          email: state.email,
+          password: state.password,
+          password2: state.confirmPassword,
+        }),
+      }
+    );
 
     if (!response.ok) {
       const errorText = await response.text();

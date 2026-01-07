@@ -19,5 +19,7 @@ onMounted(async () => {
   if (!user.value) {
     router.push('/login');
   }
+
+  // Sample data for the chart
 });
 </script>
