@@ -2,6 +2,7 @@
 import AppHeader from "~/components/common/AppHeader.vue";
 import AppFooter from "~/components/common/AppFooter.vue";
 import { SpeedInsights } from "@vercel/speed-insights/vue";
+import { Analytics } from '@vercel/analytics/nuxt';
 </script>
 
 <template>
@@ -14,5 +15,6 @@ import { SpeedInsights } from "@vercel/speed-insights/vue";
       <AppFooter />
     </UApp>
     <SpeedInsights />
+    <Analytics />
   </div>
 </template>

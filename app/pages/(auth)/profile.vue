@@ -7,7 +7,7 @@ const router = useRouter();
 
 async function checkAuth() {
   try {
-    const response = await fetch('http://127.0.0.1:8000/api/accounts/me/', {
+    const response = await fetch('http://127.0.0.1:8080/api/me', {
       method: 'GET',
       credentials: 'include', // sends cookies
     });
