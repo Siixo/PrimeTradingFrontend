@@ -116,7 +116,7 @@ const router = useRouter();
 
 async function login(identifier, password) {
   try {
-    const response = await fetch("http://ec2-35-180-31-240.eu-west-3.compute.amazonaws.com:8080/api/login", {
+    const response = await fetch("http://ec2-35-180-31-240.eu-west-3.compute.amazonaws.com:443/api/login", {
       method: "POST",
       credentials: "include",
       headers: {

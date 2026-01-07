@@ -194,7 +194,7 @@ async function onSubmit() {
 
   try {
     const response = await fetch(
-      "http://ec2-35-180-31-240.eu-west-3.compute.amazonaws.com:8080/api/register",
+      "http://ec2-35-180-31-240.eu-west-3.compute.amazonaws.com:443/api/register",
       {
         method: "POST",
         headers: {

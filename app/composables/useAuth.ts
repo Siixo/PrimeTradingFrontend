@@ -17,10 +17,13 @@ export const useAuth = () => {
 
   const fetchUser = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:8080/api/me", {
-        method: "GET",
-        credentials: "include",
-      });
+      const response = await fetch(
+        "http://ec2-35-180-31-240.eu-west-3.compute.amazonaws.com:443/api/me",
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
       if (response.ok) {
         user.value = await response.json();
       } else {
