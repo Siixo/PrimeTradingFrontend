@@ -2,8 +2,11 @@
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineNuxtConfig({
-  compatibilityDate: "2025-07-15",
-  devtools: { enabled: true },
+  compatibilityDate: "2024-04-03",
+  devtools: { enabled: false },
+
+  // Explicitly set buildDir to avoid potential path issues
+  buildDir: ".nuxt",
 
   devServer: {
     host: "0.0.0.0",
