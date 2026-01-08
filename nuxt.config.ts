@@ -26,7 +26,7 @@ export default defineNuxtConfig({
   routeRules: {
     "/api/**": {
       proxy:
-        "http://ec2-35-180-31-240.eu-west-3.compute.amazonaws.com:8080/api/**",
+        "http://ec2-35-180-31-240.eu-west-3.compute.amazonaws.com:443/api/**",
     },
   },
 
