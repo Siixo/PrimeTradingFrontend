@@ -126,6 +126,8 @@ async function login(identifier, password) {
     });
     const data = await response.json();
     if (response.ok) {
+      const token = useCookie('auth_token');
+      token.value = data.access_token;
       router.push('/graphs');
     } else {
       console.error("Login failed:", data);
