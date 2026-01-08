@@ -116,7 +116,7 @@ const router = useRouter();
 
 async function login(identifier, password) {
   try {
-    const response = await fetch("http://ec2-35-180-31-240.eu-west-3.compute.amazonaws.com:443/api/login", {
+    const response = await fetch("/api/login", {
       method: "POST",
       credentials: "include",
       headers: {
@@ -126,8 +126,6 @@ async function login(identifier, password) {
     });
     const data = await response.json();
     if (response.ok) {
-      const token = useCookie('auth_token');
-      token.value = data.access_token;
       router.push('/graphs');
     } else {
       console.error("Login failed:", data);
