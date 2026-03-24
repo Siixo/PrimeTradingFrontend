@@ -21,24 +21,24 @@ export interface Correlation {
 
 // ── Chart-ready view models ─────────────────────────────────────────
 export interface TimeValue {
-  time: string; // YYYY-MM-DD for lightweight-charts
+  time: number; // Unix timestamp for intraday support
   value: number;
 }
 
 function normalizeChartData(items: TimeValue[]): TimeValue[] {
-  // Sort ascending and dedupe by date so lightweight-charts gets strictly increasing times.
-  const sorted = [...items].sort((a, b) => a.time.localeCompare(b.time));
-  const byDay = new Map<string, number>();
+  // Sort ascending and dedupe by timestamp so lightweight-charts gets strictly increasing times.
+  const sorted = [...items].sort((a, b) => a.time - b.time);
+  const byTime = new Map<number, number>();
   for (const item of sorted) {
-    byDay.set(item.time, item.value);
+    byTime.set(item.time, item.value);
   }
-  return Array.from(byDay.entries()).map(([time, value]) => ({ time, value }));
+  return Array.from(byTime.entries()).map(([time, value]) => ({ time, value }));
 }
 
 export function commoditiesToChart(items: Commodity[]): TimeValue[] {
   return normalizeChartData(
     items.map((c) => ({
-      time: c.date.slice(0, 10),
+      time: Math.floor(new Date(c.date).getTime() / 1000),
       value: c.price_kg,
     })),
   );
@@ -50,7 +50,7 @@ export function correlationsToChart(
 ): TimeValue[] {
   return normalizeChartData(
     items.map((c) => ({
-      time: c.correlation_date.slice(0, 10),
+      time: Math.floor(new Date(c.correlation_date).getTime() / 1000),
       value: c[field],
     })),
   );
