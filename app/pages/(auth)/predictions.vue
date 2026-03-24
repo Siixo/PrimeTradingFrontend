@@ -152,6 +152,10 @@ function initChart() {
       vertLines: { color: "#374151" },
       horzLines: { color: "#374151" },
     },
+    timeScale: {
+      timeVisible: true,
+      secondsVisible: false,
+    },
     width: chartContainer.value.clientWidth,
     height: 400,
   });
