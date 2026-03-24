@@ -33,12 +33,6 @@ export default defineNuxtConfig({
     },
   },
 
-  routeRules: {
-    "/api/**": {
-      proxy: `${apiBaseUrl}/api/**`,
-    },
-  },
-
   vite: {
     plugins: [tailwindcss()],
   },
