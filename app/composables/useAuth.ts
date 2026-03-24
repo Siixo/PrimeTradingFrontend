@@ -31,10 +31,23 @@ export const useAuth = () => {
     }
   };
 
+  const logout = async () => {
+    try {
+      await fetch("/api/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } finally {
+      clearUser();
+      navigateTo("/login");
+    }
+  };
+
   return {
     user,
     setUser,
     clearUser,
     fetchUser,
+    logout,
   };
 };
