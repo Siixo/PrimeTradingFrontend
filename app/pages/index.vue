@@ -9,11 +9,11 @@ const cards = ref([
     to: "/docs/getting-started/integrations/icons",
   },
   {
-    title: "Django",
+    title: "Go (Golang)",
     description:
-      "Backend powered by Django, a high-level Python web framework for rapid development.",
-    icon: "i-material-icon-theme:django",
-    to: "/docs/getting-started/integrations/color-mode",
+      "Backend powered by Go, high-performance programming language designed for concurrency and speed.",
+    icon: "i-mdi:language-go",
+    to: "/docs/getting-started/integrations/go",
   },
   {
     title: "Lightweight graph library",
@@ -30,11 +30,11 @@ const cards = ref([
     to: "/docs/getting-started/integrations/postgresql",
   },
   {
-    title: "Python",
+    title: "High Performance",
     description:
-      "Robust programming language for data analysis and solid mathematical computations.",
-    icon: "i-mdi:language-python",
-    to: "/docs/getting-started/integrations/python",
+      "Low latency data processing ensuring real-time insights for commodity correlations.",
+    icon: "i-lucide-zap",
+    to: "/docs/getting-started/integrations/performance",
   },
   {
     title: "Nuxt UI",

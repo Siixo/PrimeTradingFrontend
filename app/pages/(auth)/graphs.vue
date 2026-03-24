@@ -2,20 +2,23 @@
   <div class="p-6">
     <h1 class="text-2xl font-bold mb-6">Market Data</h1>
 
-    <div class="flex gap-4 mb-6">
+    <!-- Commodity selector -->
+    <div class="flex flex-wrap gap-4 mb-6">
       <UButton
-        :color="currentType === 'gold' ? 'primary' : 'gray'"
-        @click="currentType = 'gold'"
+        v-for="c in commodities"
+        :key="c"
+        :color="currentCommodity === c ? 'primary' : 'neutral'"
+        @click="currentCommodity = c"
       >
-        Gold
+        {{ c.charAt(0).toUpperCase() + c.slice(1) }}
       </UButton>
-      <UButton
-        :color="currentType === 'silver' ? 'primary' : 'gray'"
-        @click="currentType = 'silver'"
-      >
-        Silver
-      </UButton>
+
+      <USelect v-model="selectedLimit" :items="limitOptions" class="w-32" />
     </div>
+
+    <UCard class="mb-6">
+      <div ref="chartContainer" class="w-full h-[400px]"></div>
+    </UCard>
 
     <UCard>
       <div v-if="loading" class="flex justify-center p-8">
@@ -26,67 +29,116 @@
         {{ error }}
       </div>
 
-      <UTable v-else :rows="sortedData" :columns="columns" :loading="loading" />
+      <UTable v-else :rows="tableRows" :columns="columns" :loading="loading" />
     </UCard>
   </div>
 </template>
 
 <script lang="ts" setup>
-const router = useRouter();
-const { user, fetchUser } = useAuth();
+import { AreaSeries, createChart, ColorType } from "lightweight-charts";
+import type { Commodity, TimeValue } from "~/composables/useApi";
+import { commoditiesToChart } from "~/composables/useApi";
 
-const currentType = ref<"gold" | "silver">("gold");
-const data = ref<Record<string, number>>({});
+definePageMeta({ middleware: "auth" });
+
+const { getCommodityHistory } = useApi();
+
+const commodities = ["gold", "silver", "copper", "brent", "aluminum"] as const;
+const currentCommodity = ref<string>("gold");
+
+const limitOptions = [
+  { label: "30 days", value: "30" },
+  { label: "90 days", value: "90" },
+  { label: "180 days", value: "180" },
+  { label: "365 days", value: "365" },
+];
+const selectedLimit = ref("100");
+
+const rawData = ref<Commodity[]>([]);
 const loading = ref(false);
 const error = ref("");
+const chartContainer = ref<HTMLElement | null>(null);
+
+let chart: ReturnType<typeof createChart> | null = null;
+let areaSeries: any = null;
 
 const columns = [
-  { key: "date", label: "Date", sortable: true },
-  { key: "price", label: "Price (USD)", sortable: true },
+  { id: "date", key: "date", label: "Date", sortable: true },
+  { id: "price", key: "price", label: "Price (USD/kg)", sortable: true },
+  { id: "unit", key: "unit", label: "Unit" },
 ];
 
-const sortedData = computed(() => {
-  return Object.entries(data.value)
-    .map(([date, price]) => ({ date, price }))
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-});
+const tableRows = computed(() =>
+  rawData.value
+    .map((c) => ({
+      date: c.date.slice(0, 10),
+      price: c.price_kg.toFixed(2),
+      unit: c.unit,
+    }))
+    .sort((a, b) => b.date.localeCompare(a.date)),
+);
 
-async function fetchData(type: string) {
+const chartData = computed<TimeValue[]>(() =>
+  commoditiesToChart(rawData.value),
+);
+
+async function fetchData() {
   loading.value = true;
   error.value = "";
   try {
-    // Uses the Nuxt Proxy (/api/stock -> EC2)
-    const response = await fetch(`/api/stock?type=${type}`, {
-      method: "GET",
-      credentials: "include", // Uses the proxy-managed cookie
-    });
-
-    if (!response.ok) throw new Error("Failed to fetch data");
-
-    data.value = await response.json();
-  } catch (e) {
-    error.value = "Error loading market data";
+    rawData.value = await getCommodityHistory(
+      currentCommodity.value,
+      Number(selectedLimit.value),
+    );
+    updateChart();
+  } catch (e: any) {
+    error.value = e?.message || "Error loading market data";
     console.error(e);
   } finally {
     loading.value = false;
   }
 }
 
-// Watch for type changes
-watch(currentType, (newType) => {
-  fetchData(newType);
-});
+function updateChart() {
+  if (areaSeries && chart) {
+    areaSeries.setData(chartData.value);
+    chart.timeScale().fitContent();
+  }
+}
+
+// Re-fetch when commodity or limit changes
+watch([currentCommodity, selectedLimit], () => fetchData());
 
 onMounted(async () => {
-  if (!user.value) {
-    await fetchUser();
-  }
-  if (!user.value) {
-    router.push("/login");
-    return;
+  if (chartContainer.value) {
+    chart = createChart(chartContainer.value, {
+      layout: {
+        background: { type: ColorType.Solid, color: "transparent" },
+        textColor: "#9Ca3af",
+      },
+      grid: {
+        vertLines: { color: "#374151" },
+        horzLines: { color: "#374151" },
+      },
+      width: chartContainer.value.clientWidth,
+      height: 400,
+    });
+
+    areaSeries = chart.addSeries(AreaSeries, {
+      lineColor: "#22c55e",
+      topColor: "#22c55e",
+      bottomColor: "rgba(34, 197, 94, 0.28)",
+    });
+
+    const handleResize = () => {
+      if (chartContainer.value && chart) {
+        chart.applyOptions({ width: chartContainer.value.clientWidth });
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
   }
 
-  // Initial fetch
-  fetchData(currentType.value);
+  fetchData();
 });
 </script>

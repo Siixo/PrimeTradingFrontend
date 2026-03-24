@@ -1,6 +1,10 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import tailwindcss from "@tailwindcss/vite";
 
+const apiBaseUrl = (
+  process.env.NUXT_API_BASE_URL || "http://localhost:8080"
+).replace(/\/$/, "");
+
 export default defineNuxtConfig({
   compatibilityDate: "2024-04-03",
   devtools: { enabled: false },
@@ -23,10 +27,15 @@ export default defineNuxtConfig({
 
   css: ["~/assets/css/main.css"],
 
+  runtimeConfig: {
+    public: {
+      apiBaseUrl,
+    },
+  },
+
   routeRules: {
     "/api/**": {
-      proxy:
-        "http://ec2-35-180-31-240.eu-west-3.compute.amazonaws.com:443/api/**",
+      proxy: `${apiBaseUrl}/api/**`,
     },
   },
 
