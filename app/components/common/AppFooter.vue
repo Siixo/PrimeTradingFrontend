@@ -27,14 +27,6 @@ const items: NavigationMenuItem[] = [
 
     <template #right>
       <UButton
-        icon="i-simple-icons-discord"
-        color="neutral"
-        variant="ghost"
-        to="https://go.nuxt.com/discord"
-        target="_blank"
-        aria-label="Discord"
-      />
-      <UButton
         icon="i-simple-icons-linkedin"
         color="neutral"
         variant="ghost"
@@ -46,7 +38,7 @@ const items: NavigationMenuItem[] = [
         icon="i-simple-icons-github"
         color="neutral"
         variant="ghost"
-        to="https://github.com/nuxt/nuxt"
+        to="https://github.com/Siixo/PrimeTradingFrontend"
         target="_blank"
         aria-label="GitHub"
       />
