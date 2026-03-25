@@ -33,9 +33,13 @@ export const useAuth = () => {
 
   const logout = async () => {
     try {
+      const csrfToken = useCookie("csrf_token");
       await fetch("/api/logout", {
         method: "POST",
         credentials: "include",
+        headers: {
+          "X-CSRF-Token": csrfToken.value || "",
+        },
       });
     } finally {
       clearUser();

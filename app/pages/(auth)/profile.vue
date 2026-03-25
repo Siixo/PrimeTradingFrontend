@@ -31,9 +31,13 @@ async function onChangePassword() {
 
   isSubmitting.value = true;
   try {
+    const csrfToken = useCookie("csrf_token");
     const response = await fetch("/api/user/change-password", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "X-CSRF-Token": csrfToken.value || "",
+      },
       body: JSON.stringify({
         old_password: passwordState.old_password,
         new_password: passwordState.new_password,

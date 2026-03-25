@@ -193,10 +193,12 @@ async function onSubmit() {
   loading.value = true;
 
   try {
+    const csrfToken = useCookie("csrf_token");
     const response = await fetch("/api/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "X-CSRF-Token": csrfToken.value || "",
       },
       body: JSON.stringify({
         username: state.username,

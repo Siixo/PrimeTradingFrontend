@@ -116,19 +116,23 @@ const router = useRouter();
 
 async function login(identifier, password) {
   try {
+    const csrfToken = useCookie("csrf_token");
+    
     const response = await fetch("/api/login", {
       method: "POST",
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
+        "X-CSRF-Token": csrfToken.value || "",
       },
       body: JSON.stringify({ identifier, password }),
     });
-    const data = await response.json();
+    
     if (response.ok) {
       router.push('/graphs');
     } else {
-      console.error("Login failed:", data);
+      const errorText = await response.text();
+      console.error("Login failed:", errorText);
     }
   } catch (error) {
     console.error("Error during login:", error);
