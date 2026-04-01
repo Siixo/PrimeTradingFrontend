@@ -29,7 +29,7 @@
         {{ error }}
       </div>
 
-      <UTable v-else :rows="tableRows" :columns="columns" :loading="loading" />
+      <UTable v-else :data="tableRows" :columns="columns" :loading="loading" />
     </UCard>
   </div>
 </template>
@@ -52,7 +52,7 @@ const limitOptions = [
   { label: "180 days", value: "180" },
   { label: "365 days", value: "365" },
 ];
-const selectedLimit = ref("100");
+const selectedLimit = ref("365");
 
 const rawData = ref<Commodity[]>([]);
 const loading = ref(false);
@@ -63,9 +63,9 @@ let chart: ReturnType<typeof createChart> | null = null;
 let areaSeries: any = null;
 
 const columns = [
-  { id: "date", key: "date", label: "Date", sortable: true },
-  { id: "price", key: "price", label: "Price (USD/kg)", sortable: true },
-  { id: "unit", key: "unit", label: "Unit" },
+  { accessorKey: "date", header: "Date" },
+  { accessorKey: "price", header: "Price (USD/kg)" },
+  { accessorKey: "unit", header: "Unit" },
 ];
 
 const tableRows = computed(() =>

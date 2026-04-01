@@ -40,12 +40,15 @@
       <div v-else-if="error" class="text-red-500 text-center p-8">
         {{ error }}
       </div>
+      <div v-else-if="!history.length" class="text-gray-400 text-center p-8">
+        No correlation data available for this pair.
+      </div>
       <div v-else ref="chartContainer" class="w-full h-[400px]"></div>
     </UCard>
 
     <!-- History table -->
     <UCard v-if="!loading && !error && history.length">
-      <UTable :rows="tableRows" :columns="columns" :loading="loading" />
+      <UTable :data="tableRows" :columns="columns" :loading="loading" />
     </UCard>
   </div>
 </template>
@@ -92,10 +95,10 @@ let pearsonSeries: any = null;
 let spearmanSeries: any = null;
 
 const columns = [
-  { id: "date", key: "date", label: "Date", sortable: true },
-  { id: "pearson", key: "pearson", label: "Pearson R", sortable: true },
-  { id: "spearman", key: "spearman", label: "Spearman Rho", sortable: true },
-  { id: "points", key: "points", label: "Data Points" },
+  { accessorKey: "date", header: "Date" },
+  { accessorKey: "pearson", header: "Pearson R" },
+  { accessorKey: "spearman", header: "Spearman Rho" },
+  { accessorKey: "points", header: "Data Points" },
 ];
 
 const tableRows = computed(() =>
@@ -128,15 +131,14 @@ async function fetchData() {
 
     latest.value = latestRes;
     history.value = historyRes;
-
-    await nextTick();
-    initChart();
-    updateChart();
   } catch (e: any) {
     error.value = e?.message || "Error loading correlation data";
     console.error(e);
   } finally {
     loading.value = false;
+    await nextTick();
+    initChart();
+    updateChart();
   }
 }
 
@@ -198,7 +200,7 @@ watch([selectedPair, selectedLimit], () => {
   fetchData();
 });
 
-onMounted(async () => {
+onMounted(() => {
   fetchData();
 });
 </script>
