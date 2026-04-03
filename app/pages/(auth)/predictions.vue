@@ -130,7 +130,7 @@ async function fetchData() {
     ]);
 
     latest.value = latestRes;
-    history.value = historyRes;
+    history.value = historyRes ?? [];
   } catch (e: any) {
     error.value = e?.message || "Error loading correlation data";
     console.error(e);

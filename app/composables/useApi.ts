@@ -36,6 +36,7 @@ function normalizeChartData(items: TimeValue[]): TimeValue[] {
 }
 
 export function commoditiesToChart(items: Commodity[]): TimeValue[] {
+  if (!items?.length) return [];
   return normalizeChartData(
     items.map((c) => ({
       time: Math.floor(new Date(c.date).getTime() / 1000),
@@ -48,6 +49,7 @@ export function correlationsToChart(
   items: Correlation[],
   field: "pearson_r" | "spearman_rho" = "pearson_r",
 ): TimeValue[] {
+  if (!items?.length) return [];
   return normalizeChartData(
     items.map((c) => ({
       time: Math.floor(new Date(c.correlation_date).getTime() / 1000),
@@ -59,14 +61,14 @@ export function correlationsToChart(
 // ── Fetch wrapper with 401 refresh-retry ────────────────────────────
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const csrfToken = useCookie("csrf_token");
-  
+
   const opts: RequestInit = {
     ...init,
     credentials: "include",
-    headers: { 
-      "Content-Type": "application/json", 
+    headers: {
+      "Content-Type": "application/json",
       "X-CSRF-Token": csrfToken.value || "",
-      ...init?.headers 
+      ...init?.headers,
     },
   };
 

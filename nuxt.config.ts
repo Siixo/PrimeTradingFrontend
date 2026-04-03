@@ -2,7 +2,8 @@
 import tailwindcss from "@tailwindcss/vite";
 
 const apiBaseUrl = (
-  process.env.NUXT_API_BASE_URL || "http://localhost:8080"
+  process.env.NUXT_API_BASE_URL ||
+  "https://primetradingbackend-production.up.railway.app"
 ).replace(/\/$/, "");
 
 export default defineNuxtConfig({

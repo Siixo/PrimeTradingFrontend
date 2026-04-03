@@ -86,10 +86,11 @@ async function fetchData() {
   loading.value = true;
   error.value = "";
   try {
-    rawData.value = await getCommodityHistory(
-      currentCommodity.value,
-      Number(selectedLimit.value),
-    );
+    rawData.value =
+      (await getCommodityHistory(
+        currentCommodity.value,
+        Number(selectedLimit.value),
+      )) ?? [];
     updateChart();
   } catch (e: any) {
     error.value = e?.message || "Error loading market data";
