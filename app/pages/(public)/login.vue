@@ -1,33 +1,38 @@
-import { NuxtRouteAnnouncer } from '../../../.nuxt/components';
 <template>
   <div
-    class="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+    class="min-h-screen bg-gray-100 dark:bg-gray-950 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
   >
     <div class="max-w-sm w-full space-y-8">
-      <!-- Header -->
-
-      <!-- Login Form -->
-      <UCard class="shadow-xl">
+      <UCard class="shadow-xl border border-gray-200 dark:border-gray-700">
         <div class="text-center m-8">
           <UIcon
             name="i-heroicons-arrow-right-on-rectangle"
             class="mx-auto h-12 w-12 text-primary-600"
+            aria-hidden="true"
           />
-          <h2
+          <h1
             class="mt-6 text-3xl font-extrabold text-gray-900 dark:text-white"
           >
             Welcome back
-          </h2>
+          </h1>
           <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
             Sign in to your PrimeTrading account
           </p>
         </div>
 
+        <div
+          v-if="errorMessage"
+          role="alert"
+          class="mb-4 p-3 rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm text-center"
+        >
+          {{ errorMessage }}
+        </div>
+
         <form
           class="space-y-6 flex flex-col justify-center"
-          @submit.prevent="login(identifier, password)"
+          @submit.prevent="onLogin"
+          aria-label="Sign in form"
         >
-          <!-- Email/Username Field -->
           <UFormGroup
             label="Username or Email"
             name="identifier"
@@ -41,10 +46,11 @@ import { NuxtRouteAnnouncer } from '../../../.nuxt/components';
               size="xl"
               class="text-center"
               required
+              autocomplete="username"
+              aria-required="true"
             />
           </UFormGroup>
 
-          <!-- Password Field -->
           <UFormGroup label="Password" name="password" class="text-center">
             <UInput
               v-model="password"
@@ -54,10 +60,11 @@ import { NuxtRouteAnnouncer } from '../../../.nuxt/components';
               size="xl"
               class="text-center"
               required
+              autocomplete="current-password"
+              aria-required="true"
             />
           </UFormGroup>
 
-          <!-- Remember Me & Forgot Password -->
           <div class="flex items-center justify-between">
             <UCheckbox label="Remember me" />
             <UButton
@@ -70,21 +77,23 @@ import { NuxtRouteAnnouncer } from '../../../.nuxt/components';
             </UButton>
           </div>
 
-          <!-- Submit Button -->
           <UButton
             type="submit"
             block
             size="lg"
+            :loading="loading"
             class="justify-center mx-auto w-full"
           >
             <template #leading>
-              <UIcon name="i-heroicons-arrow-right-on-rectangle" />
+              <UIcon
+                name="i-heroicons-arrow-right-on-rectangle"
+                aria-hidden="true"
+              />
             </template>
             Sign In
           </UButton>
         </form>
 
-        <!-- Register Link -->
         <div class="mt-6 text-center">
           <p class="text-sm text-gray-600 dark:text-gray-400">
             Don't have an account?
@@ -98,7 +107,10 @@ import { NuxtRouteAnnouncer } from '../../../.nuxt/components';
   </div>
 </template>
 
-<script setup lang="js">
+<script setup lang="ts">
+const { login, user } = useAuth();
+const router = useRouter();
+
 useHead({
   title: "Login - PrimeTrading",
   meta: [
@@ -110,65 +122,48 @@ useHead({
   ],
 });
 
-const identifier = ref('');
-const password = ref('');
-const router = useRouter();
+const identifier = ref("");
+const password = ref("");
+const loading = ref(false);
+const errorMessage = ref("");
 
-async function login(identifier, password) {
+watch(
+  user,
+  (u) => {
+    if (u) router.push("/graphs");
+  },
+  { immediate: true },
+);
+
+async function onLogin() {
+  errorMessage.value = "";
+  if (!identifier.value.trim()) {
+    errorMessage.value = "Please enter your username or email.";
+    return;
+  }
+  if (!password.value) {
+    errorMessage.value = "Please enter your password.";
+    return;
+  }
+
+  loading.value = true;
   try {
-    const csrfToken = useCookie("csrf_token");
-    
-    const response = await fetch("/api/login", {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRF-Token": csrfToken.value || "",
-      },
-      body: JSON.stringify({ identifier, password }),
-    });
-    
-    if (response.ok) {
-      router.push('/graphs');
-    } else {
-      const errorText = await response.text();
-      console.error("Login failed:", errorText);
+    await login(identifier.value, password.value);
+    router.push("/graphs");
+  } catch (error: any) {
+    const msg = error?.message || "";
+    try {
+      const parsed = JSON.parse(msg);
+      errorMessage.value =
+        parsed.error ||
+        parsed.message ||
+        "Login failed. Please check your credentials.";
+    } catch {
+      errorMessage.value =
+        msg || "Login failed. Please check your credentials.";
     }
-  } catch (error) {
-    console.error("Error during login:", error);
+  } finally {
+    loading.value = false;
   }
 }
 </script>
-
-<style scoped>
-/* Center form labels and help text */
-:deep(.form-group) {
-  text-align: center;
-}
-
-:deep(.form-group label) {
-  display: block;
-  text-align: center;
-  margin-bottom: 0.5rem;
-}
-
-:deep(.form-group .help-text) {
-  text-align: center;
-}
-
-/* Ensure input fields are properly aligned */
-:deep(.ui-input-wrapper) {
-  margin: 0 auto;
-  text-align: center;
-}
-
-:deep(.ui-input) {
-  text-align: center;
-}
-
-/* Center the checkbox container */
-:deep(.ui-checkbox-wrapper) {
-  justify-content: center;
-  text-align: center;
-}
-</style>

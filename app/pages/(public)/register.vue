@@ -1,22 +1,23 @@
 <template>
   <div
-    class="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+    class="min-h-screen bg-gray-100 dark:bg-gray-950 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
   >
     <div class="max-w-md w-full space-y-8">
       <!-- Header -->
 
       <!-- Registration Form -->
-      <UCard class="shadow-xl">
+      <UCard class="shadow-xl border border-gray-200 dark:border-gray-700">
         <div class="text-center m-8">
           <UIcon
             name="i-heroicons-user-plus"
             class="mx-auto h-12 w-12 text-primary-600"
+            aria-hidden="true"
           />
-          <h2
+          <h1
             class="mt-6 text-3xl font-extrabold text-gray-900 dark:text-white"
           >
             Create your account
-          </h2>
+          </h1>
           <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
             Join PrimeTrading and start your trading journey
           </p>
@@ -25,6 +26,7 @@
         <form
           class="space-y-4 flex flex-col justify-center"
           @submit.prevent="onSubmit"
+          aria-label="Registration form"
         >
           <!-- Username Field -->
           <UFormGroup
@@ -41,6 +43,8 @@
               :disabled="loading"
               class="text-center"
               required
+              autocomplete="username"
+              aria-required="true"
             />
           </UFormGroup>
 
@@ -60,6 +64,8 @@
               :disabled="loading"
               class="text-center"
               required
+              autocomplete="email"
+              aria-required="true"
             />
           </UFormGroup>
 
@@ -79,6 +85,8 @@
               :disabled="loading"
               class="text-center"
               required
+              autocomplete="new-password"
+              aria-required="true"
             />
           </UFormGroup>
 
@@ -97,6 +105,8 @@
               :disabled="loading"
               class="text-center"
               required
+              autocomplete="new-password"
+              aria-required="true"
             />
           </UFormGroup>
 
@@ -151,6 +161,8 @@
 </template>
 
 <script setup lang="ts">
+const { register: doRegister } = useAuth();
+
 // Reactive state for form data
 const state = reactive({
   username: "",
@@ -193,31 +205,12 @@ async function onSubmit() {
   loading.value = true;
 
   try {
-    const csrfToken = useCookie("csrf_token");
-    const response = await fetch("/api/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRF-Token": csrfToken.value || "",
-      },
-      body: JSON.stringify({
-        username: state.username,
-        email: state.email,
-        password: state.password,
-        password2: state.confirmPassword,
-      }),
+    await doRegister({
+      username: state.username,
+      email: state.email,
+      password: state.password,
+      password2: state.confirmPassword,
     });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      toast.add({
-        title: "Registration Failed",
-        description: errorText || "Something went wrong. Please try again.",
-        icon: "i-heroicons-exclamation-triangle",
-        color: "error",
-      });
-      return;
-    }
 
     // Show success message
     toast.add({
@@ -229,11 +222,18 @@ async function onSubmit() {
 
     // Redirect to login
     await navigateTo("/login");
-  } catch (error) {
-    // Handle network errors or other exceptions
+  } catch (error: any) {
+    const msg = error?.message || "";
+    let description = "Something went wrong. Please try again.";
+    try {
+      const parsed = JSON.parse(msg);
+      description = parsed.error || parsed.message || description;
+    } catch {
+      if (msg) description = msg;
+    }
     toast.add({
       title: "Registration Failed",
-      description: "A network error occurred. Please try again.",
+      description,
       icon: "i-heroicons-exclamation-triangle",
       color: "error",
     });

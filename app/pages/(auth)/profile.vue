@@ -3,7 +3,7 @@ import { useAuth } from "~/composables/useAuth";
 
 definePageMeta({ middleware: "auth" });
 
-const { user, logout } = useAuth();
+const { user, logout, changePassword } = useAuth();
 const toast = useToast();
 
 const isChangingPassword = ref(false);
@@ -31,41 +31,31 @@ async function onChangePassword() {
 
   isSubmitting.value = true;
   try {
-    const csrfToken = useCookie("csrf_token");
-    const response = await fetch("/api/user/change-password", {
-      method: "POST",
-      headers: { 
-        "Content-Type": "application/json",
-        "X-CSRF-Token": csrfToken.value || "",
-      },
-      body: JSON.stringify({
-        old_password: passwordState.old_password,
-        new_password: passwordState.new_password,
-      }),
+    await changePassword(
+      passwordState.old_password,
+      passwordState.new_password,
+    );
+    toast.add({
+      title: "Success",
+      description: "Password updated successfully",
+      color: "success",
     });
-
-    if (response.ok) {
-      toast.add({
-        title: "Success",
-        description: "Password updated successfully",
-        color: "success",
-      });
-      isChangingPassword.value = false;
-      passwordState.old_password = "";
-      passwordState.new_password = "";
-      passwordState.confirm_password = "";
-    } else {
-      const data = await response.json();
-      toast.add({
-        title: "Error",
-        description: data.message || "Failed to update password",
-        color: "error",
-      });
+    isChangingPassword.value = false;
+    passwordState.old_password = "";
+    passwordState.new_password = "";
+    passwordState.confirm_password = "";
+  } catch (err: any) {
+    const msg = err?.message || "";
+    let description = "Failed to update password";
+    try {
+      const parsed = JSON.parse(msg);
+      description = parsed.error || parsed.message || description;
+    } catch {
+      if (msg) description = msg;
     }
-  } catch (err) {
     toast.add({
       title: "Error",
-      description: "A network error occurred",
+      description,
       color: "error",
     });
   } finally {
@@ -101,7 +91,9 @@ async function onChangePassword() {
         </template>
 
         <div class="space-y-6">
-          <div class="flex justify-between items-center py-2 border-b border-gray-800">
+          <div
+            class="flex justify-between items-center py-2 border-b border-gray-800"
+          >
             <span class="text-gray-400">Username</span>
             <span class="font-medium font-mono text-gray-200">{{
               user?.username
@@ -123,7 +115,9 @@ async function onChangePassword() {
       <!-- Actions -->
       <div class="space-y-4">
         <UCard v-if="!isChangingPassword">
-          <h3 class="font-bold mb-4 text-sm text-gray-400 uppercase tracking-wider">
+          <h3
+            class="font-bold mb-4 text-sm text-gray-400 uppercase tracking-wider"
+          >
             Security
           </h3>
           <UButton
@@ -146,17 +140,24 @@ async function onChangePassword() {
                 variant="ghost"
                 icon="i-heroicons-x-mark"
                 size="xs"
+                aria-label="Cancel password change"
                 @click="isChangingPassword = false"
               />
             </div>
           </template>
 
-          <UForm :state="passwordState" class="space-y-4" @submit="onChangePassword">
+          <UForm
+            :state="passwordState"
+            class="space-y-4"
+            @submit="onChangePassword"
+          >
             <UFormField label="Current Password" name="old_password">
               <UInput
                 v-model="passwordState.old_password"
                 type="password"
                 placeholder="••••••••"
+                autocomplete="current-password"
+                aria-required="true"
               />
             </UFormField>
             <UFormField label="New Password" name="new_password">
@@ -164,6 +165,8 @@ async function onChangePassword() {
                 v-model="passwordState.new_password"
                 type="password"
                 placeholder="••••••••"
+                autocomplete="new-password"
+                aria-required="true"
               />
             </UFormField>
             <UFormField label="Confirm New Password" name="confirm_password">
@@ -171,6 +174,8 @@ async function onChangePassword() {
                 v-model="passwordState.confirm_password"
                 type="password"
                 placeholder="••••••••"
+                autocomplete="new-password"
+                aria-required="true"
               />
             </UFormField>
 

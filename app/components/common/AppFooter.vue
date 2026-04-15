@@ -4,13 +4,12 @@ import type { NavigationMenuItem } from "@nuxt/ui";
 const items: NavigationMenuItem[] = [
   {
     label: "Releases",
-    to: "https://github.com/nuxt/ui/releases",
+    to: "https://github.com/Siixo/PrimeTradingFrontend/releases",
     target: "_blank",
   },
   {
     label: "Legal mentions",
-    to: "https://stackblitz.com/edit/nuxt-ui",
-    target: "_blank",
+    to: "/legal",
   },
 ];
 </script>

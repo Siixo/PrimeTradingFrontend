@@ -1,4 +1,6 @@
-type User = {
+import { apiFetch } from "~/composables/useApi";
+
+export type User = {
   username: string;
   email: string;
   user_id: number;
@@ -17,30 +19,46 @@ export const useAuth = () => {
 
   const fetchUser = async () => {
     try {
-      const response = await fetch("/api/me", {
-        method: "GET",
-        credentials: "include",
-      });
-      if (response.ok) {
-        user.value = await response.json();
-      } else {
-        user.value = null;
-      }
+      user.value = await apiFetch<NonNullable<User>>("/api/me");
     } catch {
       user.value = null;
     }
   };
 
+  const login = async (identifier: string, password: string) => {
+    const data = await apiFetch<NonNullable<User>>("/api/login", {
+      method: "POST",
+      body: JSON.stringify({ identifier, password }),
+    });
+    user.value = data;
+    return data;
+  };
+
+  const register = async (payload: {
+    username: string;
+    email: string;
+    password: string;
+    password2: string;
+  }) => {
+    await apiFetch<{ message: string }>("/api/register", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  };
+
+  const changePassword = async (oldPassword: string, newPassword: string) => {
+    await apiFetch<{ message: string }>("/api/user/change-password", {
+      method: "POST",
+      body: JSON.stringify({
+        old_password: oldPassword,
+        new_password: newPassword,
+      }),
+    });
+  };
+
   const logout = async () => {
     try {
-      const csrfToken = useCookie("csrf_token");
-      await fetch("/api/logout", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "X-CSRF-Token": csrfToken.value || "",
-        },
-      });
+      await apiFetch<void>("/api/logout", { method: "POST" });
     } finally {
       clearUser();
       navigateTo("/login");
@@ -52,6 +70,9 @@ export const useAuth = () => {
     setUser,
     clearUser,
     fetchUser,
+    login,
+    register,
+    changePassword,
     logout,
   };
 };

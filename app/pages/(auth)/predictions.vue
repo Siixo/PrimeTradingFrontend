@@ -3,7 +3,10 @@
     <h1 class="text-2xl font-bold mb-6">Correlation Analytics</h1>
 
     <!-- Pair selector -->
-    <div class="flex flex-wrap gap-4 mb-6">
+    <nav
+      aria-label="Correlation pair selector"
+      class="flex flex-wrap gap-4 mb-6"
+    >
       <UButton
         v-for="p in pairs"
         :key="p.key"
@@ -13,8 +16,13 @@
         {{ p.label }}
       </UButton>
 
-      <USelect v-model="selectedLimit" :items="limitOptions" class="w-32" />
-    </div>
+      <USelect
+        v-model="selectedLimit"
+        :items="limitOptions"
+        class="w-32"
+        aria-label="Select data point limit"
+      />
+    </nav>
 
     <!-- Summary cards -->
     <div v-if="latest" class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
@@ -34,16 +42,31 @@
 
     <!-- Chart -->
     <UCard class="mb-6">
-      <div v-if="loading" class="flex justify-center p-8">
-        <UIcon name="i-heroicons-arrow-path" class="animate-spin h-8 w-8" />
+      <div
+        v-if="loading"
+        class="flex justify-center p-8"
+        role="status"
+        aria-label="Loading correlation data"
+      >
+        <UIcon
+          name="i-heroicons-arrow-path"
+          class="animate-spin h-8 w-8"
+          aria-hidden="true"
+        />
       </div>
-      <div v-else-if="error" class="text-red-500 text-center p-8">
+      <div v-else-if="error" class="text-red-500 text-center p-8" role="alert">
         {{ error }}
       </div>
       <div v-else-if="!history.length" class="text-gray-400 text-center p-8">
         No correlation data available for this pair.
       </div>
-      <div v-else ref="chartContainer" class="w-full h-[400px]"></div>
+      <div
+        v-else
+        ref="chartContainer"
+        class="w-full h-[400px]"
+        role="img"
+        :aria-label="`Correlation chart for ${selectedPair.label}`"
+      ></div>
     </UCard>
 
     <!-- History table -->
@@ -93,6 +116,7 @@ const chartContainer = ref<HTMLElement | null>(null);
 let chart: ReturnType<typeof createChart> | null = null;
 let pearsonSeries: any = null;
 let spearmanSeries: any = null;
+let handleResize: (() => void) | null = null;
 
 const columns = [
   { accessorKey: "date", header: "Date" },
@@ -174,12 +198,13 @@ function initChart() {
     title: "Spearman Rho",
   });
 
-  const handleResize = () => {
+  const handleResizeFn = () => {
     if (chartContainer.value && chart) {
       chart.applyOptions({ width: chartContainer.value.clientWidth });
     }
   };
-  window.addEventListener("resize", handleResize);
+  handleResize = handleResizeFn;
+  window.addEventListener("resize", handleResizeFn);
 }
 
 function updateChart() {
@@ -191,6 +216,10 @@ function updateChart() {
 
 // Destroy and recreate chart on pair/limit change so the container re-renders
 watch([selectedPair, selectedLimit], () => {
+  if (handleResize) {
+    window.removeEventListener("resize", handleResize);
+    handleResize = null;
+  }
   if (chart) {
     chart.remove();
     chart = null;
@@ -202,5 +231,17 @@ watch([selectedPair, selectedLimit], () => {
 
 onMounted(() => {
   fetchData();
+});
+
+onUnmounted(() => {
+  if (handleResize) {
+    window.removeEventListener("resize", handleResize);
+  }
+  if (chart) {
+    chart.remove();
+    chart = null;
+    pearsonSeries = null;
+    spearmanSeries = null;
+  }
 });
 </script>

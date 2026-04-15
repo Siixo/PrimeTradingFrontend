@@ -31,9 +31,12 @@ function onSubmit() {
             <UIcon
               name="i-heroicons-map-pin"
               class="h-8 w-8 text-primary shrink-0"
+              aria-hidden="true"
             />
             <div>
-              <p class="font-semibold text-sm text-gray-400 uppercase tracking-wider">
+              <p
+                class="font-semibold text-sm text-gray-400 uppercase tracking-wider"
+              >
                 Find Us
               </p>
               <p class="font-medium">123 Market St, Paris, France</p>
@@ -46,9 +49,12 @@ function onSubmit() {
             <UIcon
               name="i-heroicons-envelope"
               class="h-8 w-8 text-primary shrink-0"
+              aria-hidden="true"
             />
             <div>
-              <p class="font-semibold text-sm text-gray-400 uppercase tracking-wider">
+              <p
+                class="font-semibold text-sm text-gray-400 uppercase tracking-wider"
+              >
                 Email
               </p>
               <p class="font-medium">hello@primetrading.io</p>
@@ -61,9 +67,12 @@ function onSubmit() {
             <UIcon
               name="i-heroicons-phone"
               class="h-8 w-8 text-primary shrink-0"
+              aria-hidden="true"
             />
             <div>
-              <p class="font-semibold text-sm text-gray-400 uppercase tracking-wider">
+              <p
+                class="font-semibold text-sm text-gray-400 uppercase tracking-wider"
+              >
                 Support
               </p>
               <p class="font-medium">+33 1 23 45 67 89</p>
@@ -78,7 +87,12 @@ function onSubmit() {
           <h2 class="text-xl font-bold">Send us a Message</h2>
         </template>
 
-        <UForm :state="state" @submit="onSubmit" class="space-y-6">
+        <UForm
+          :state="state"
+          @submit="onSubmit"
+          class="space-y-6"
+          aria-label="Contact form"
+        >
           <div class="grid sm:grid-cols-2 gap-6">
             <UFormField label="Your Name" name="name">
               <UInput

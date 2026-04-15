@@ -3,7 +3,7 @@
     <h1 class="text-2xl font-bold mb-6">Market Data</h1>
 
     <!-- Commodity selector -->
-    <div class="flex flex-wrap gap-4 mb-6">
+    <nav aria-label="Commodity selector" class="flex flex-wrap gap-4 mb-6">
       <UButton
         v-for="c in commodities"
         :key="c"
@@ -13,19 +13,38 @@
         {{ c.charAt(0).toUpperCase() + c.slice(1) }}
       </UButton>
 
-      <USelect v-model="selectedLimit" :items="limitOptions" class="w-32" />
-    </div>
+      <USelect
+        v-model="selectedLimit"
+        :items="limitOptions"
+        class="w-32"
+        aria-label="Select time range"
+      />
+    </nav>
 
     <UCard class="mb-6">
-      <div ref="chartContainer" class="w-full h-[400px]"></div>
+      <div
+        ref="chartContainer"
+        class="w-full h-[400px]"
+        role="img"
+        :aria-label="`Price chart for ${currentCommodity}`"
+      ></div>
     </UCard>
 
     <UCard>
-      <div v-if="loading" class="flex justify-center p-8">
-        <UIcon name="i-heroicons-arrow-path" class="animate-spin h-8 w-8" />
+      <div
+        v-if="loading"
+        class="flex justify-center p-8"
+        role="status"
+        aria-label="Loading data"
+      >
+        <UIcon
+          name="i-heroicons-arrow-path"
+          class="animate-spin h-8 w-8"
+          aria-hidden="true"
+        />
       </div>
 
-      <div v-else-if="error" class="text-red-500 text-center p-8">
+      <div v-else-if="error" class="text-red-500 text-center p-8" role="alert">
         {{ error }}
       </div>
 
@@ -61,6 +80,7 @@ const chartContainer = ref<HTMLElement | null>(null);
 
 let chart: ReturnType<typeof createChart> | null = null;
 let areaSeries: any = null;
+let handleResize: (() => void) | null = null;
 
 const columns = [
   { accessorKey: "date", header: "Date" },
@@ -135,7 +155,7 @@ onMounted(async () => {
       bottomColor: "rgba(34, 197, 94, 0.28)",
     });
 
-    const handleResize = () => {
+    handleResize = () => {
       if (chartContainer.value && chart) {
         chart.applyOptions({ width: chartContainer.value.clientWidth });
       }
@@ -145,5 +165,16 @@ onMounted(async () => {
   }
 
   fetchData();
+});
+
+onUnmounted(() => {
+  if (handleResize) {
+    window.removeEventListener("resize", handleResize);
+  }
+  if (chart) {
+    chart.remove();
+    chart = null;
+    areaSeries = null;
+  }
 });
 </script>

@@ -59,7 +59,10 @@ export function correlationsToChart(
 }
 
 // ── Fetch wrapper with 401 refresh-retry ────────────────────────────
-async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
+export async function apiFetch<T>(
+  path: string,
+  init?: RequestInit,
+): Promise<T> {
   const csrfToken = useCookie("csrf_token");
 
   const opts: RequestInit = {

@@ -1,4 +1,3 @@
-import { type } from '../../.nuxt/types/imports';
 <script setup>
 const cards = ref([
   {
@@ -48,11 +47,12 @@ const cards = ref([
 
 <template>
   <div>
-    <div class="relative h-screen w-full">
+    <section aria-label="Hero" class="relative h-screen w-full">
       <video
         class="h-full w-full object-cover object-center"
         autoplay
         loop
+        muted
         playsinline
         preload="auto"
         aria-label="Stock trading hero video background"
@@ -69,17 +69,20 @@ const cards = ref([
         <h1 class="text-white text-6xl font-bold mb-6 leading-tight">
           Welcome to <br />PrimeTrading
         </h1>
-        <button
+        <NuxtLink
+          to="/register"
           class="px-6 py-3 bg-white text-black font-semibold rounded-full hover:bg-neutral-200 transition mb-4"
         >
           Get Started
-        </button>
-        <a href="">
+        </NuxtLink>
+        <a href="#discover" aria-label="Scroll to discover section">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="32"
             height="32"
             viewBox="0 0 24 24"
+            aria-hidden="true"
+            focusable="false"
           >
             <!-- Icon from IconaMoon by Dariush Habibpour - https://creativecommons.org/licenses/by/4.0/ -->
             <path
@@ -93,8 +96,9 @@ const cards = ref([
           </svg>
         </a>
       </div>
-    </div>
+    </section>
     <section
+      id="discover"
       class="discover p-8 max-w-4xl mx-auto flex flex-col items-center text-center gap-4"
     >
       <h2 class="text-2xl font-bold mb-4">Discover</h2>

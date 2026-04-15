@@ -56,12 +56,17 @@ const items = computed<NavigationMenuItem[]>(() => {
       variant: 'ghost',
       class: 'rounded-full',
     }"
+    class="bg-white/75 dark:bg-gray-900/75 border-b border-gray-200 dark:border-gray-800"
   >
     <template #title>
       <AppLogo class="h-6 w-auto" />
     </template>
 
-    <UNavigationMenu :items="items" variant="link" />
+    <UNavigationMenu 
+      :items="items" 
+      variant="link" 
+      class="font-medium [&_a]:!text-black dark:[&_a]:!text-white hover:[&_a]:opacity-75" 
+    />
 
     <template #right>
       <template v-if="!user">
@@ -81,6 +86,7 @@ const items = computed<NavigationMenuItem[]>(() => {
           to="/profile"
           icon="i-heroicons-user-circle-20-solid"
           class="mr-2"
+          aria-label="Go to profile"
         />
       </template>
 
@@ -90,10 +96,10 @@ const items = computed<NavigationMenuItem[]>(() => {
         <UButton
           color="neutral"
           variant="ghost"
-          to="https://github.com/nuxt/ui"
+          to="https://github.com/Siixo/PrimeTradingFrontend"
           target="_blank"
           icon="i-simple-icons-github"
-          aria-label="GitHub"
+          aria-label="GitHub repository"
           class="hidden sm:flex ml-2"
         />
       </UTooltip>
@@ -111,27 +117,27 @@ const items = computed<NavigationMenuItem[]>(() => {
           class="justify-start -mx-2.5"
           @click="isMenuOpen = false"
         />
-        
-        <UNavigationMenu 
-          :items="items" 
-          orientation="vertical" 
-          class="-mx-2.5" 
+
+        <UNavigationMenu
+          :items="items"
+          orientation="vertical"
+          class="-mx-2.5"
           @click="isMenuOpen = false"
         />
-        
+
         <template v-if="!user">
-          <UButton 
-            to="/login" 
-            label="Login" 
-            block 
-            @click="isMenuOpen = false" 
+          <UButton
+            to="/login"
+            label="Login"
+            block
+            @click="isMenuOpen = false"
           />
-          <UButton 
-            to="/register" 
-            label="Register" 
-            variant="outline" 
-            block 
-            @click="isMenuOpen = false" 
+          <UButton
+            to="/register"
+            label="Register"
+            variant="outline"
+            block
+            @click="isMenuOpen = false"
           />
         </template>
       </div>
